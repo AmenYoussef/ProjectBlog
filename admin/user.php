@@ -1,5 +1,7 @@
 <?php
 
+ob_start(); // Output Buffering Start
+
 session_start();
 
 include 'system/ini.php';
@@ -89,25 +91,33 @@ if ($do == 'Manage') {
 
 } elseif ($do == 'Delete') {
 
-    echo "<h1 class='text-center'>Delete Member</h1>";
-			echo "<div class='container'>";
-				// Check If Get Request userid Is Numeric & Get The Integer Value Of It
-				$userid = isset($_GET['UserID']) && is_numeric($_GET['UserID']) ? intval($_GET['UserID']) : 0;
-				// Select All Data Depend On This ID
-                $check = checkItem('UserID', 'user', $userid);
-				// If There's Such ID Show The Form
-				if ($check > 0) {
-					$stmt = $con->prepare("DELETE FROM user WHERE UserID = ?");
-                    $stmt->execute(array($userid));
-                    
-                    echo '<h1 class="text-center">This User Deleted Now</h1>';
-				} else {
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-                    include $foldertemp . '404.php';
+        echo "<h1 class='text-center'>Delete Member</h1>";
+                echo "<div class='container'>";
+                    // Check If Get Request userid Is Numeric & Get The Integer Value Of It
+                    $userid = isset($_GET['UserID']) && is_numeric($_GET['UserID']) ? intval($_GET['UserID']) : 0;
+                    // Select All Data Depend On This ID
+                    $check = checkItem('UserID', 'user', $userid);
+                    // If There's Such ID Show The Form
+                    if ($check > 0) {
+                        $stmt = $con->prepare("DELETE FROM user WHERE UserID = ?");
+                        $stmt->execute(array($userid));
+                        
+                        echo '<h1 class="text-center">This User Deleted Now</h1>';
+                    } else {
 
-                }
-			echo '</div>';
+                        include $foldertemp . '404.php';
 
+                    }
+                echo '</div>';
+                
+
+     } else {
+
+        include $foldertemp . '404.php';
+
+     }
 } elseif ($do == 'Edit') {
 
     // Check If Get Request userid Is Numeric & Get The Integer Value Of It
@@ -123,100 +133,208 @@ if ($do == 'Manage') {
 
     if($check > 0) {
 
-    ?>
+        ?>
 
-    <h1 class="text-center">Edit User <?php echo $row['Username']; ?></h1>
+            <h1 class="text-center">Edit User <?php echo $row['Username']; ?></h1>
 
-    <div class="container">
+            <div class="container">
 
-    <Form action="?do=Update" method="POST">
-    
-        <div class="row">
+            <Form action="?do=Update" method="POST">
+            
+                <div class="row">
 
-            <div class="col-md-6">
-            
-                <div class="form-group">
-                            
-                    <input type="text" class="form-control" Value = '<?PHP echo $row['Username']; ?>' name="Username" placeholder="Username">
-                            
-                </div>
-            
-            </div>
+                    <div class="col-md-6">
+                    
+                        <div class="form-group">
+                                    
+                            <input type="text" class="form-control" Value = '<?PHP echo $row['Username']; ?>' name="Username" placeholder="Username">
+                                    
+                        </div>
+                    
+                    </div>
 
-            <div class="col-md-6">
-            
-                <div class="form-group">
-                            
-                    <input type="text" class="form-control" Value = '<?PHP echo $row['Fullname']; ?>' name="Fullname" placeholder="FullName">
-                            
-                </div>
-            
-            </div>
+                    <div class="col-md-6">
+                    
+                        <div class="form-group">
+                                    
+                            <input type="text" class="form-control" Value = '<?PHP echo $row['Fullname']; ?>' name="Fullname" placeholder="FullName">
+                                    
+                        </div>
+                    
+                    </div>
 
-            <div class="col-md-6">
-            
-                <div class="form-group">
-                            
-                    <input type="text" class="form-control" Value = '<?PHP echo $row['Email']; ?>' name="Email" placeholder="Email">
-                            
-                </div>
-            
-            </div>
-            
-            <div class="col-md-6">
-            
-                <div class="form-group">
-                            
-                    <input type="text" class="form-control" Value = '<?PHP echo $row['Phone']; ?>' name="Phone" placeholder="Phone">
-                            
-                </div>
-            
-            </div>
+                    <div class="col-md-6">
+                    
+                        <div class="form-group">
+                                    
+                            <input type="text" class="form-control" Value = '<?PHP echo $row['Email']; ?>' name="Email" placeholder="Email">
+                                    
+                        </div>
+                    
+                    </div>
+                    
+                    <div class="col-md-6">
+                    
+                        <div class="form-group">
+                                    
+                            <input type="number" class="form-control" Value = '<?PHP echo $row['Phone']; ?>' name="Phone" placeholder="Phone">
+                                    
+                        </div>
+                    
+                    </div>
 
-            <div class="col-md-12">
+                    <div class="col-md-12">
+                        
+                        <div class="form-group text-center">
+                                    
+                            <input type='checkbox' id='blockUser' <?php if($row['Rank'] == 0) { echo 'Checked';} ?>> <label for="blockUser"> Ban User</label>
+                            <input type='checkbox' id='TakeAdminstrator' <?php if ($row['GroupID'] == 1) { echo 'Checked';} ?> > <label for="TakeAdminstrator"> Adminstrator</label>
+                                    
+                        </div>
                 
-                <div class="form-group text-center">
-                            
-                    <input type='checkbox' id='blockUser' <?php if($row['Rank'] == 0) { echo 'Checked';} ?>> <label for="blockUser"> Ban User</label>
-                    <input type='checkbox' id='TakeAdminstrator' <?php if ($row['GroupID'] == 1) { echo 'Checked';} ?> > <label for="TakeAdminstrator"> Adminstrator</label>
-                            
-                </div>
-        
-            </div>
+                    </div>
 
 
-            <div class="col-md-12">
+                    <div class="col-md-12">
+                        
+                        <div class="form-group text-center">
+                                    
+                            <input class='btn btn-sm btn-success' type='submit' value='Send'>
+                                    
+                        </div>
                 
-                <div class="form-group text-center">
-                            
-                    <input class='btn btn-sm btn-success' type='submit' value='Send'>
-                            
+                    </div>
+
                 </div>
-        
+            
+            
+            
+            
+            </form>
+            
+            
+            
+            
             </div>
 
-        </div>
-    
-    
-    
-    
-    </form>
-    
-    
-    
-    
-    </div>
 
 
 
-
-    <?php
-
-    } elseif ($do == 'Upsate') {
+        <?php
         
 
+        } 
 
 
+
+    } elseif ($do == 'Update') {
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $userid = isset($_GET['UserID']) && is_numeric($_GET['UserID']) ? intval($_GET['UserID']) : 0;
+        
+
+            $Username = $_POST['Username'];
+            $Fullname = $_POST['Fullname'];
+            $email    = $_POST['Email'];
+            $Phone    = $_POST['Phone'];
+
+
+            echo $Username . $Phone;
+
+
+            $ErrorForm = array();
+
+
+            if (empty($Username)) {
+
+                $ErrorForm[] = 'Sorry, Please Input Username';
+                
+            } elseif (strlen($Username) < 5) {
+
+                $ErrorForm[] = 'Sorry, Please Input Username > 4';
+
+            }
+
+
+            if (empty($Fullname)) {
+
+                $ErrorForm[] = 'Sorry, Please Input Full Name';
+                
+            } elseif (strlen($Fullname) < 5) {
+
+                $ErrorForm[] = 'Sorry, Please Input Full Name > 4';
+
+            }
+
+            if (empty($Phone)) {
+
+                $ErrorForm[] = 'Sorry, Please Input Phone';
+                
+            } elseif (is_numeric($Phone)) {
+
+                $ErrorForm[] = 'Sorry, Please Input Phone.';
+                
+            } elseif (strlen($Phone) < 10) {
+
+                $ErrorForm[] = 'Sorry, Please Input Phone > 10';
+
+            }
+
+            if (empty($email)) {
+
+                $ErrorForm[] = 'Sorry, Please Input Email';
+                
+            } elseif (strlen($email) < 8) {
+
+                $ErrorForm[] = 'Sorry, Please Input Email';
+
+            }
+
+
+            if (empty($ErrorForm)) {
+
+                $checkUser = checkItem('UserID', 'user', $userid);
+
+                if ($checkUser > 0) {
+
+
+                    // Update The Database With This Info
+						$stmt = $con->prepare("UPDATE user SET Username = ?, Email = ?, FullName = ?, Phone = ? WHERE UserID = ?");
+                        $stmt->execute(array($Username, $email, $Fullname, $Phone, $userid));
+                        
+                        echo '<div class="container text-center">';
+
+                            echo '<p class="alert alert-danger">This Edit Is Agre</P>';
+
+                        echo '</div>';
+
+
+
+                } else {
+
+                    include $foldertemp . '404.php';
+
+                }
+
+            } else {
+
+                echo '<div class="container">';
+
+                echo '<div class="text-center marrgin">';
+
+                foreach ($ErrorForm as $Error) {
+                    echo '<p class="alert alert-danger">' . $Error .'</P>';
+                }
+
+                echo '</div>';
+                echo '</div>';
+
+            }
+
+        } else {
+            include $foldertemp . '404.php';
+        }
 
     } else {
 
@@ -225,12 +343,4 @@ if ($do == 'Manage') {
 
     }
 
-
-
-
-} else {
-
-    include $foldertemp . '404.php';
-
-}
-
+    ob_end_flush(); // Release The Output

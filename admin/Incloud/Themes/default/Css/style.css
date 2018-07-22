@@ -16,6 +16,10 @@ input[type="checkbox"] + label {
     
 }
 
+.marrgin {
+    margin: 50px;
+}
+
 /* Login Admin Syle */
 .login {
     margin: 10% 0;

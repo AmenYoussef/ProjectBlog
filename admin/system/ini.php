@@ -30,5 +30,7 @@ include $folderLang . 'eng.php';
 
 include $foldertemp . 'header.php';
 
+
+
 // Include Navbar On All Pages Expect The One With $noNavbar Vairable
 	if(!isset($noNavbar)) { include $foldertemp . 'navbar.php'; }

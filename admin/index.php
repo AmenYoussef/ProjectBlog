@@ -1,4 +1,5 @@
 <?php
+ob_start(); // Output Buffering Start
 session_start();
 
 $noNavbar = " ";
@@ -101,3 +102,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <?php
 
 include $foldertemp . 'footer.php';
+
+ob_end_flush(); // Release The Output
