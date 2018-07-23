@@ -103,7 +103,7 @@ if ($do == 'Manage') {
                     if ($check > 0) {
                         $stmt = $con->prepare("DELETE FROM user WHERE UserID = ?");
                         $stmt->execute(array($userid));
-                        
+
                         echo '<h1 class="text-center">This User Deleted Now</h1>';
                     } else {
 
@@ -111,7 +111,7 @@ if ($do == 'Manage') {
 
                     }
                 echo '</div>';
-                
+
 
      } else {
 
@@ -140,90 +140,92 @@ if ($do == 'Manage') {
             <div class="container">
 
             <Form action="?do=Update" method="POST">
-            
+
                 <div class="row">
 
                     <div class="col-md-6">
-                    
+
                         <div class="form-group">
-                                    
+
+                          <input type="hidden" name="ID" value="<?PHP echo $row['UserID']; ?>">
+
                             <input type="text" class="form-control" Value = '<?PHP echo $row['Username']; ?>' name="Username" placeholder="Username">
-                                    
+
                         </div>
-                    
+
                     </div>
 
                     <div class="col-md-6">
-                    
+
                         <div class="form-group">
-                                    
+
                             <input type="text" class="form-control" Value = '<?PHP echo $row['Fullname']; ?>' name="Fullname" placeholder="FullName">
-                                    
+
                         </div>
-                    
+
                     </div>
 
                     <div class="col-md-6">
-                    
+
                         <div class="form-group">
-                                    
+
                             <input type="text" class="form-control" Value = '<?PHP echo $row['Email']; ?>' name="Email" placeholder="Email">
-                                    
+
                         </div>
-                    
+
                     </div>
-                    
+
                     <div class="col-md-6">
-                    
+
                         <div class="form-group">
-                                    
+
                             <input type="number" class="form-control" Value = '<?PHP echo $row['Phone']; ?>' name="Phone" placeholder="Phone">
-                                    
+
                         </div>
-                    
+
                     </div>
 
                     <div class="col-md-12">
-                        
+
                         <div class="form-group text-center">
-                                    
+
                             <input type='checkbox' id='blockUser' <?php if($row['Rank'] == 0) { echo 'Checked';} ?>> <label for="blockUser"> Ban User</label>
                             <input type='checkbox' id='TakeAdminstrator' <?php if ($row['GroupID'] == 1) { echo 'Checked';} ?> > <label for="TakeAdminstrator"> Adminstrator</label>
-                                    
+
                         </div>
-                
+
                     </div>
 
 
                     <div class="col-md-12">
-                        
+
                         <div class="form-group text-center">
-                                    
+
                             <input class='btn btn-sm btn-success' type='submit' value='Send'>
-                                    
+
                         </div>
-                
+
                     </div>
 
                 </div>
-            
-            
-            
-            
+
+
+
+
             </form>
-            
-            
-            
-            
+
+
+
+
             </div>
 
 
 
 
         <?php
-        
 
-        } 
+
+        }
 
 
 
@@ -231,16 +233,12 @@ if ($do == 'Manage') {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $userid = isset($_GET['UserID']) && is_numeric($_GET['UserID']) ? intval($_GET['UserID']) : 0;
-        
-
+            $UserID   = $_POST['ID'];
             $Username = $_POST['Username'];
             $Fullname = $_POST['Fullname'];
             $email    = $_POST['Email'];
             $Phone    = $_POST['Phone'];
 
-
-            echo $Username . $Phone;
 
 
             $ErrorForm = array();
@@ -249,7 +247,7 @@ if ($do == 'Manage') {
             if (empty($Username)) {
 
                 $ErrorForm[] = 'Sorry, Please Input Username';
-                
+
             } elseif (strlen($Username) < 5) {
 
                 $ErrorForm[] = 'Sorry, Please Input Username > 4';
@@ -260,21 +258,18 @@ if ($do == 'Manage') {
             if (empty($Fullname)) {
 
                 $ErrorForm[] = 'Sorry, Please Input Full Name';
-                
+
             } elseif (strlen($Fullname) < 5) {
 
                 $ErrorForm[] = 'Sorry, Please Input Full Name > 4';
 
             }
 
+
             if (empty($Phone)) {
 
                 $ErrorForm[] = 'Sorry, Please Input Phone';
-                
-            } elseif (is_numeric($Phone)) {
 
-                $ErrorForm[] = 'Sorry, Please Input Phone.';
-                
             } elseif (strlen($Phone) < 10) {
 
                 $ErrorForm[] = 'Sorry, Please Input Phone > 10';
@@ -284,7 +279,7 @@ if ($do == 'Manage') {
             if (empty($email)) {
 
                 $ErrorForm[] = 'Sorry, Please Input Email';
-                
+
             } elseif (strlen($email) < 8) {
 
                 $ErrorForm[] = 'Sorry, Please Input Email';
@@ -294,50 +289,68 @@ if ($do == 'Manage') {
 
             if (empty($ErrorForm)) {
 
-                $checkUser = checkItem('UserID', 'user', $userid);
+                $checkUser = checkItem('UserID', 'user', $UserID);
 
                 if ($checkUser > 0) {
 
+                        // Update The Database With This Info
+						            $stmt = $con->prepare("UPDATE user SET Username = ?, Email = ?, FullName = ?, Phone = ? WHERE UserID = ?");
+                        $stmt->execute(array($Username, $email, $Fullname, $Phone, $UserID));
 
-                    // Update The Database With This Info
-						$stmt = $con->prepare("UPDATE user SET Username = ?, Email = ?, FullName = ?, Phone = ? WHERE UserID = ?");
-                        $stmt->execute(array($Username, $email, $Fullname, $Phone, $userid));
-                        
-                        echo '<div class="container text-center">';
+                        ?>
 
-                            echo '<p class="alert alert-danger">This Edit Is Agre</P>';
+                        <div class="container text-center">
 
-                        echo '</div>';
+                            <p class="alert alert-success">This Edit Is Agre</P>
 
+                        </div>
+
+                        <?php
 
 
                 } else {
 
-                    include $foldertemp . '404.php';
+                  ?>
 
-                }
+                  <div class="container">
 
-            } else {
+                    <div class="text-center marrgin">
 
-                echo '<div class="container">';
+                        <p class="alert alert-danger">Sorry Thsi Username Is Not Found</P>
 
-                echo '<div class="text-center marrgin">';
+                    </div>
 
-                foreach ($ErrorForm as $Error) {
-                    echo '<p class="alert alert-danger">' . $Error .'</P>';
-                }
+                  </div>
 
-                echo '</div>';
-                echo '</div>';
 
-            }
+                <?php }
+
+            } else { ?>
+
+                <div class="container">
+
+                  <div class="text-center marrgin">
+
+                      <?php
+                      foreach ($ErrorForm as $Error) {
+                          echo '<p class="alert alert-danger">' . $Error .'</P>';
+                      }
+
+                      ?>
+
+                  </div>
+
+                </div>
+
+          <?php }
 
         } else {
+
             include $foldertemp . '404.php';
+
         }
 
     } else {
-
 
         include $foldertemp . '404.php';
 
