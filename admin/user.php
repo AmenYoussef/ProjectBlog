@@ -40,10 +40,12 @@ if ($do == 'Manage') {
 
         <?php
 
-            foreach ($row as $rows) {
+            foreach ($row as $rows) { ?>
 
-                echo '<tr>';
+                <tr class=' text-center <?php if ($rows['Rank'] == 0) {echo "DesbTable";} ?>'>
 
+
+                  <?php
                 echo '<td>' . $rows['UserID'] . '</td>';
                 echo '<td>' . $rows['Username'] . '</td>';
                 echo '<td>' . $rows['Fullname'] . '</td>';
@@ -71,7 +73,7 @@ if ($do == 'Manage') {
 
                 if ($rows['Rank'] == 0) {
 
-                    echo '<a href="#" class="btn btn-xs btn-info">Active</a>';
+                    echo '<a href="user.php?do=Active&UserID='. $rows['UserID'] .'" class="btn btn-xs btn-info">Active</a>';
 
                 }
 
@@ -85,6 +87,9 @@ if ($do == 'Manage') {
         ?>
 
         </table>
+
+
+        <a class='btn btn-info' href="#"><i class="fa fa-plus" aria-hidden="true"></i> Add New User</a>
     </div>
 
     <?php
@@ -118,6 +123,7 @@ if ($do == 'Manage') {
         include $foldertemp . '404.php';
 
      }
+
 } elseif ($do == 'Edit') {
 
     // Check If Get Request userid Is Numeric & Get The Integer Value Of It
@@ -189,8 +195,8 @@ if ($do == 'Manage') {
 
                         <div class="form-group text-center">
 
-                            <input type='checkbox' id='blockUser' <?php if($row['Rank'] == 0) { echo 'Checked';} ?>> <label for="blockUser"> Ban User</label>
-                            <input type='checkbox' id='TakeAdminstrator' <?php if ($row['GroupID'] == 1) { echo 'Checked';} ?> > <label for="TakeAdminstrator"> Adminstrator</label>
+                            <input type='checkbox' id='blockUser' name='blockUser' <?php if($row['Rank'] == 0) { echo 'Checked';} ?>> <label for="blockUser"> Ban User</label>
+                            <input type='checkbox' id="TakeAdminstrator" name='TakeAdminstrator' <?php if ($row['GroupID'] == 1) { echo 'Checked';} ?> > <label for="TakeAdminstrator"> Adminstrator</label>
 
                         </div>
 
@@ -207,20 +213,12 @@ if ($do == 'Manage') {
 
                     </div>
 
+
                 </div>
-
-
-
 
             </form>
 
-
-
-
-            </div>
-
-
-
+          </div>
 
         <?php
 
@@ -233,11 +231,31 @@ if ($do == 'Manage') {
 
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-            $UserID   = $_POST['ID'];
-            $Username = $_POST['Username'];
-            $Fullname = $_POST['Fullname'];
-            $email    = $_POST['Email'];
-            $Phone    = $_POST['Phone'];
+            $UserID       = $_POST['ID'];
+            $Username     = $_POST['Username'];
+            $Fullname     = $_POST['Fullname'];
+            $email        = $_POST['Email'];
+            $Phone        = $_POST['Phone'];
+            $checkBlack   = $_POST['blockUser'];
+            $checkAdmin   = $_POST['TakeAdminstrator'];
+
+            if ($checkBlack === 'on') {
+
+              $checkBlack = 0;
+
+            } else {
+              $checkBlack = 1;
+            }
+
+            if ($checkAdmin === 'on') {
+
+              $checkAdmin = 1;
+
+            } else {
+              $checkAdmin = 0;
+            }
+
+            echo $checkBlack;
 
 
 
@@ -294,8 +312,8 @@ if ($do == 'Manage') {
                 if ($checkUser > 0) {
 
                         // Update The Database With This Info
-						            $stmt = $con->prepare("UPDATE user SET Username = ?, Email = ?, FullName = ?, Phone = ? WHERE UserID = ?");
-                        $stmt->execute(array($Username, $email, $Fullname, $Phone, $UserID));
+						            $stmt = $con->prepare("UPDATE user SET Username = ?, Email = ?, FullName = ?, Phone = ?, GroupID = ?, Rank = ? WHERE UserID = ?");
+                        $stmt->execute(array($Username, $email, $Fullname, $Phone,$checkAdmin, $checkBlack, $UserID));
 
                         ?>
 
@@ -347,6 +365,28 @@ if ($do == 'Manage') {
         } else {
 
             include $foldertemp . '404.php';
+
+        }
+
+    } elseif ($do == 'Active') {
+        // Check If Get Request userid Is Numeric & Get The Integer Value Of It
+        $userid = isset($_GET['UserID']) && is_numeric($_GET['UserID']) ? intval($_GET['UserID']) : 0;
+        // Select All Data Depend On This ID
+        $check = checkItem('UserID', 'user', $userid);
+
+        //$stmt = $con->prepare("UPDATE user SET Username = ?, Email = ?, FullName = ?, Phone = ?, GroupID = ?, Rank = ? WHERE UserID = ?");
+        //$stmt->execute(array($Username, $email, $Fullname, $Phone,$checkAdmin, $checkBlack, $UserID));
+
+
+        if ($check > 0) {
+
+
+          $stmt = $con->prepare('UPDATE user SET Rank = ? WHERE UserID = ?');
+          $stmt->execute(array(1, $userid));
+
+          header('Location: user.php');
+
+          exit();
 
         }
 
